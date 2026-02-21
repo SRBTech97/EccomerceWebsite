@@ -1,0 +1,146 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+/// Master data for brands (MDM-style)
+model MasterBrand {
+  id        Int             @id @default(autoincrement())
+  name      String          @unique
+  slug      String          @unique
+  isActive  Boolean         @default(true)
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+  products  MasterProduct[]
+}
+
+/// Master data for primary product categories
+model MasterCategory {
+  id        Int             @id @default(autoincrement())
+  name      String          @unique
+  slug      String          @unique
+  isActive  Boolean         @default(true)
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+  products  MasterProduct[]
+}
+
+/// Master data for apparel sizes (e.g., S, M, 32, 34)
+model MasterSize {
+  id        Int              @id @default(autoincrement())
+  label     String           // Human-readable label (e.g., "Medium")
+  code      String           // Short code (e.g., "M")
+  isActive  Boolean          @default(true)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+  variants  ProductVariant[]
+
+  @@unique([label, code])
+}
+
+/// Master data for colors
+model MasterColor {
+  id        Int              @id @default(autoincrement())
+  name      String
+  code      String           // Hex or internal code
+  isActive  Boolean          @default(true)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+  variants  ProductVariant[]
+
+  @@unique([name, code])
+}
+
+/// Canonical master product (style/SKU family)
+model MasterProduct {
+  id          Int              @id @default(autoincrement())
+  name        String
+  description String?
+  brandId     Int
+  categoryId  Int
+  baseSku     String           @unique
+  isActive    Boolean          @default(true)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  brand       MasterBrand      @relation(fields: [brandId], references: [id])
+  category    MasterCategory   @relation(fields: [categoryId], references: [id])
+  variants    ProductVariant[]
+
+  @@index([brandId])
+  @@index([categoryId])
+}
+
+/// Sellable product variant (size/color matrix row)
+model ProductVariant {
+  variantId  Int             @id @default(autoincrement())
+  productId  Int
+  sizeId     Int
+  colorId    Int
+  price      Decimal
+  costPrice  Decimal
+  stockQty   Int
+  sku        String          @unique
+  isActive   Boolean         @default(true)
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+
+  product    MasterProduct   @relation(fields: [productId], references: [id])
+  size       MasterSize      @relation(fields: [sizeId], references: [id])
+  color      MasterColor     @relation(fields: [colorId], references: [id])
+  orderItems OrderItem[]
+
+  @@index([productId])
+  @@index([sizeId])
+  @@index([colorId])
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  CANCELLED
+}
+
+/// Customer order header
+model Order {
+  id           Int         @id @default(autoincrement())
+  orderNumber  String      @unique
+  status       OrderStatus @default(PENDING)
+  totalAmount  Decimal
+  totalCost    Decimal
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  items        OrderItem[]
+}
+
+/// Order line items, denormalized with price and cost snapshots
+model OrderItem {
+  id              Int           @id @default(autoincrement())
+  orderId         Int
+  variantId       Int
+  quantity        Int
+  unitPrice       Decimal
+  unitCostPrice   Decimal
+  totalPrice      Decimal
+  totalCost       Decimal
+  createdAt       DateTime      @default(now())
+
+  order           Order         @relation(fields: [orderId], references: [id])
+  variant         ProductVariant @relation(fields: [variantId], references: [variantId])
+
+  @@index([orderId])
+  @@index([variantId])
+}
+// Needed for Decimal type mapping in Prisma Client
+
