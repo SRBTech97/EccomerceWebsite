@@ -6,7 +6,7 @@ import { UpdateStockDto } from './dto/update-stock.dto';
 export class InventoryController {
   constructor(private readonly inventoryService: InventoryService) {}
 
-  @Patch('deduct')
+  @Patch()
   deduct(@Body() dto: UpdateStockDto) {
     return this.inventoryService.deductStock(dto);
   }

@@ -142,4 +142,47 @@ export class OrderService {
       return order;
     });
   }
+
+  async getOrders() {
+    return this.prisma.order.findMany({
+      orderBy: {
+        createdAt: 'desc',
+      },
+      include: {
+        items: {
+          include: {
+            variant: {
+              select: {
+                sku: true,
+                price: true,
+                size: {
+                  select: {
+                    label: true,
+                    code: true,
+                  },
+                },
+                color: {
+                  select: {
+                    name: true,
+                    code: true,
+                  },
+                },
+                product: {
+                  select: {
+                    id: true,
+                    name: true,
+                    brand: {
+                      select: {
+                        name: true,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+  }
 }
