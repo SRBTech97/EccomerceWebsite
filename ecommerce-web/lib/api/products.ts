@@ -1,4 +1,4 @@
-import { apiGet } from './client';
+import { apiGet, apiPost, apiPatch, apiDelete } from './client';
 
 export interface ProductVariant {
   variantId: number;
@@ -56,4 +56,39 @@ export async function fetchProducts(filter?: ProductFilter): Promise<ProductSumm
 
 export async function fetchProductById(id: number): Promise<ProductSummary> {
   return apiGet<ProductSummary>(`/products/${id}`);
+}
+
+export interface CreateProductDto {
+  name: string;
+  description?: string;
+  brandId: number;
+  categoryId: number;
+  baseSku: string;
+  variants: Array<{
+    sizeId: number;
+    colorId: number;
+    price: number;
+    costPrice: number;
+    stockQty: number;
+    sku: string;
+  }>;
+}
+
+export interface UpdateProductDto {
+  name?: string;
+  description?: string;
+  brandId?: number;
+  categoryId?: number;
+}
+
+export async function createProduct(dto: CreateProductDto): Promise<ProductSummary> {
+  return apiPost<CreateProductDto, ProductSummary>('/products', dto);
+}
+
+export async function updateProduct(id: number, dto: UpdateProductDto): Promise<ProductSummary> {
+  return apiPatch<UpdateProductDto, ProductSummary>(`/products/${id}`, dto);
+}
+
+export async function deleteProduct(id: number): Promise<void> {
+  await apiDelete<void>(`/products/${id}`);
 }
