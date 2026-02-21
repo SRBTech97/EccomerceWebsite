@@ -185,4 +185,55 @@ export class OrderService {
       },
     });
   }
+
+  async getOrderById(id: number) {
+    const order = await this.prisma.order.findUnique({
+      where: { id },
+      include: {
+        items: {
+          include: {
+            variant: {
+              select: {
+                variantId: true,
+                sku: true,
+                price: true,
+                size: {
+                  select: {
+                    id: true,
+                    label: true,
+                    code: true,
+                  },
+                },
+                color: {
+                  select: {
+                    id: true,
+                    name: true,
+                    code: true,
+                  },
+                },
+                product: {
+                  select: {
+                    id: true,
+                    name: true,
+                    brand: {
+                      select: {
+                        id: true,
+                        name: true,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!order) {
+      throw new NotFoundException(`Order with ID ${id} not found`);
+    }
+
+    return order;
+  }
 }

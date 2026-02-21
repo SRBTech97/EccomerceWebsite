@@ -22,13 +22,13 @@ export default async function CustomerHomePage() {
           </p>
           <div className="flex gap-3">
             <Link
-              href="/(customer)/products"
+              href="/products"
               className="inline-flex items-center justify-center rounded-full bg-brand px-6 py-2 text-sm font-semibold text-white shadow-sm hover:bg-brand-dark"
             >
               Shop now
             </Link>
             <Link
-              href="/(customer)/products"
+              href="/products"
               className="inline-flex items-center justify-center rounded-full border border-slate-300 px-6 py-2 text-sm font-semibold text-slate-800 hover:border-brand"
             >
               Explore categories
@@ -50,7 +50,7 @@ export default async function CustomerHomePage() {
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold text-slate-900">Trending now</h2>
           <Link
-            href="/(customer)/products"
+            href="/products"
             className="text-xs font-semibold uppercase tracking-wide text-brand"
           >
             View all

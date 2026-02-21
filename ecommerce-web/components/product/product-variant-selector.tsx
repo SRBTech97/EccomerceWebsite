@@ -21,12 +21,13 @@ export function ProductVariantSelector({ product }: ProductVariantSelectorProps)
     new Map(product.variants.map((v) => [v.color.id, v.color])).values(),
   );
 
-  const selectedVariant: ProductVariant | undefined = product.variants.find((v) => {
-    return (
-      (selectedSizeId === null || v.size.id === selectedSizeId) &&
-      (selectedColorId === null || v.color.id === selectedColorId)
-    );
-  });
+  // Only find variant when BOTH size and color are selected
+  const selectedVariant: ProductVariant | undefined =
+    selectedSizeId !== null && selectedColorId !== null
+      ? product.variants.find(
+          (v) => v.size.id === selectedSizeId && v.color.id === selectedColorId,
+        )
+      : undefined;
 
   const disabled = !selectedVariant;
 
@@ -82,9 +83,17 @@ export function ProductVariantSelector({ product }: ProductVariantSelectorProps)
         </div>
       </div>
 
-      {selectedVariant && (
+      {!selectedSizeId || !selectedColorId ? (
+        <p className="text-sm text-slate-600">
+          Please select both size and color
+        </p>
+      ) : selectedVariant ? (
         <p className="text-sm text-slate-700">
           Price: <span className="font-semibold">₹{selectedVariant.price.toFixed(0)}</span>
+        </p>
+      ) : (
+        <p className="text-sm text-red-600">
+          This combination is out of stock
         </p>
       )}
 

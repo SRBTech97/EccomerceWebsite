@@ -19,7 +19,7 @@ export default function CheckoutPage() {
       setError(null);
       await createOrder(items);
       clear();
-      router.push('/(customer)/orders');
+      router.push('/orders');
     } catch (err) {
       setError((err as Error).message ?? 'Failed to place order');
     } finally {
