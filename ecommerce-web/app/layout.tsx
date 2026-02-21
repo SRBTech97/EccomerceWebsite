@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { AuthProvider } from '../lib/providers/auth-provider';
 import './globals.css';
 
 export const metadata = {
@@ -10,7 +11,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
       <body className="min-h-screen bg-white text-slate-900 antialiased">
-        {children}
+        <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
   );

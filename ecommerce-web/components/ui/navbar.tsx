@@ -1,14 +1,23 @@
 "use client";
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useCart } from '../../lib/hooks/use-cart';
+import { useAuth } from '../../lib/providers/auth-provider';
+import { Button } from './button';
 
 export function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
   const { totalItems } = useCart();
+  const { isLoggedIn, user, logout } = useAuth();
 
   const isCustomer = !pathname.startsWith('/admin');
+
+  const handleLogout = () => {
+    logout();
+    router.push('/');
+  };
 
   return (
     <header className="border-b border-slate-100 bg-white/80 backdrop-blur">
@@ -41,9 +50,26 @@ export function Navbar() {
 
         {isCustomer && (
           <div className="flex items-center gap-4 text-sm font-medium">
-            <Link href="/orders" className="text-slate-700 hover:text-brand">
-              Orders
-            </Link>
+            {isLoggedIn ? (
+              <>
+                <span className="hidden text-xs text-slate-600 sm:inline">
+                  Hi, {user?.firstName}
+                </span>
+                <Link href="/orders" className="text-slate-700 hover:text-brand">
+                  Orders
+                </Link>
+                <Button variant="ghost" onClick={handleLogout} className="px-2 py-1 text-xs">
+                  Logout
+                </Button>
+              </>
+            ) : (
+              <Link
+                href="/login"
+                className="text-slate-700 hover:text-brand"
+              >
+                Sign in
+              </Link>
+            )}
             <Link
               href="/cart"
               className="relative rounded-full bg-slate-900 px-4 py-1.5 text-xs font-semibold text-white hover:bg-slate-800"

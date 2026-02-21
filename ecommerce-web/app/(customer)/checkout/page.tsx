@@ -3,25 +3,37 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCart } from '../../../lib/hooks/use-cart';
+import { useAuth } from '../../../lib/providers/auth-provider';
 import { Button } from '../../../components/ui/button';
 import { Input } from '../../../components/ui/input';
 import { createOrder } from '../../../lib/api/orders';
+import { toast } from 'sonner';
 
 export default function CheckoutPage() {
   const { items, subtotal, clear } = useCart();
+  const { token, isLoggedIn } = useAuth();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleCheckout = async () => {
+    if (!isLoggedIn) {
+      toast.error('Please login to place an order');
+      router.push('/login');
+      return;
+    }
+
     try {
       setLoading(true);
       setError(null);
-      await createOrder(items);
+      await createOrder(items, token!);
       clear();
+      toast.success('Order placed successfully!');
       router.push('/orders');
     } catch (err) {
-      setError((err as Error).message ?? 'Failed to place order');
+      const message = (err as Error).message ?? 'Failed to place order';
+      setError(message);
+      toast.error(message);
     } finally {
       setLoading(false);
     }
