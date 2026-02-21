@@ -10,7 +10,7 @@ interface ProductCardProps {
 export function ProductCard({ product }: ProductCardProps) {
   const firstVariant = product.variants[0];
   return (
-    <Link href={`/(customer)/products/${product.id}`}>
+    <Link href={`/products/${product.id}`}>
       <Card className="group h-full overflow-hidden">
         <div className="relative h-72 w-full overflow-hidden">
           <Image

@@ -8,7 +8,7 @@ export function Navbar() {
   const pathname = usePathname();
   const { totalItems } = useCart();
 
-  const isCustomer = pathname.startsWith('/(customer)') || pathname === '/';
+  const isCustomer = !pathname.startsWith('/admin');
 
   return (
     <header className="border-b border-slate-100 bg-white/80 backdrop-blur">
@@ -21,19 +21,19 @@ export function Navbar() {
 
         {isCustomer ? (
           <nav className="flex items-center gap-4 text-sm font-medium text-slate-700">
-            <Link href="/(customer)/products" className="hover:text-brand">
+            <Link href="/products" className="hover:text-brand">
               Women
             </Link>
-            <Link href="/(customer)/products" className="hover:text-brand">
+            <Link href="/products" className="hover:text-brand">
               Men
             </Link>
-            <Link href="/(customer)/products" className="hover:text-brand">
+            <Link href="/products" className="hover:text-brand">
               Kids
             </Link>
           </nav>
         ) : (
           <nav className="flex items-center gap-4 text-xs font-semibold uppercase tracking-wide text-slate-600">
-            <Link href="/(admin)/dashboard" className="hover:text-brand">
+            <Link href="/admin/dashboard" className="hover:text-brand">
               Admin
             </Link>
           </nav>
@@ -41,11 +41,11 @@ export function Navbar() {
 
         {isCustomer && (
           <div className="flex items-center gap-4 text-sm font-medium">
-            <Link href="/(customer)/orders" className="text-slate-700 hover:text-brand">
+            <Link href="/orders" className="text-slate-700 hover:text-brand">
               Orders
             </Link>
             <Link
-              href="/(customer)/cart"
+              href="/cart"
               className="relative rounded-full bg-slate-900 px-4 py-1.5 text-xs font-semibold text-white hover:bg-slate-800"
             >
               Bag

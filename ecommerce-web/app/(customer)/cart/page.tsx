@@ -75,7 +75,7 @@ export default function CartPage() {
             <Button
               className="mt-2 w-full"
               disabled={!hasItems}
-              onClick={() => router.push('/(customer)/checkout')}
+              onClick={() => router.push('/checkout')}
             >
               Place order
             </Button>
