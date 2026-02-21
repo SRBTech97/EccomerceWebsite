@@ -20,7 +20,7 @@ export class OrderService {
     await Promise.resolve();
   }
 
-  async createOrder(dto: CreateOrderDto) {
+  async createOrder(dto: CreateOrderDto, customerId?: string) {
     if (dto.items.length === 0) {
       throw new BadRequestException('Order must contain at least one item');
     }
@@ -73,6 +73,7 @@ export class OrderService {
 
       const order = await tx.order.create({
         data: {
+          customerId,
           orderNumber,
           totalAmount,
           totalCost,
@@ -143,8 +144,9 @@ export class OrderService {
     });
   }
 
-  async getOrders() {
+  async getOrders(customerId?: string) {
     return this.prisma.order.findMany({
+      where: customerId ? { customerId } : {},
       orderBy: {
         createdAt: 'desc',
       },
@@ -186,7 +188,7 @@ export class OrderService {
     });
   }
 
-  async getOrderById(id: number) {
+  async getOrderById(id: number, customerId?: string) {
     const order = await this.prisma.order.findUnique({
       where: { id },
       include: {
@@ -231,6 +233,11 @@ export class OrderService {
     });
 
     if (!order) {
+      throw new NotFoundException(`Order with ID ${id} not found`);
+    }
+
+    // Verify user owns this order (if customerId is provided)
+    if (customerId && order.customerId !== customerId) {
       throw new NotFoundException(`Order with ID ${id} not found`);
     }
 
