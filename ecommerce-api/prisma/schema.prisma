@@ -61,6 +61,29 @@ model MasterColor {
   @@unique([name, code])
 }
 
+enum UserRole {
+  CUSTOMER
+  ADMIN
+}
+
+/// User/Customer authentication and profile
+model User {
+  userId       String      @id @default(cuid())
+  email        String      @unique
+  passwordHash String
+  firstName    String
+  lastName     String
+  phone        String?
+  role         UserRole    @default(CUSTOMER)
+  isActive     Boolean     @default(true)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  orders       Order[]
+
+  @@index([email])
+}
+
 /// Canonical master product (style/SKU family)
 model MasterProduct {
   id          Int              @id @default(autoincrement())
@@ -114,6 +137,7 @@ enum OrderStatus {
 /// Customer order header
 model Order {
   id           Int         @id @default(autoincrement())
+  customerId   String?     // Made optional for backward compatibility with existing orders
   orderNumber  String      @unique
   status       OrderStatus @default(PENDING)
   totalAmount  Decimal
@@ -121,7 +145,10 @@ model Order {
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
 
+  customer     User?       @relation(fields: [customerId], references: [userId])
   items        OrderItem[]
+
+  @@index([customerId])
 }
 
 /// Order line items, denormalized with price and cost snapshots
