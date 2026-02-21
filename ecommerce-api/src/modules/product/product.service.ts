@@ -154,4 +154,71 @@ export class ProductService {
 
     return product;
   }
+
+  async updateProduct(id: number, dto: { name?: string; description?: string; brandId?: number; categoryId?: number }) {
+    const product = await this.prisma.masterProduct.findUnique({
+      where: { id, isActive: true },
+    });
+
+    if (!product) {
+      throw new NotFoundException(`Product with ID ${id} not found`);
+    }
+
+    if (dto.brandId) {
+      const brand = await this.prisma.masterBrand.findUnique({
+        where: { id: dto.brandId },
+      });
+      if (!brand) {
+        throw new NotFoundException(`Brand with ID ${dto.brandId} not found`);
+      }
+    }
+
+    if (dto.categoryId) {
+      const category = await this.prisma.masterCategory.findUnique({
+        where: { id: dto.categoryId },
+      });
+      if (!category) {
+        throw new NotFoundException(`Category with ID ${dto.categoryId} not found`);
+      }
+    }
+
+    const updated = await this.prisma.masterProduct.update({
+      where: { id },
+      data: {
+        name: dto.name,
+        description: dto.description,
+        brandId: dto.brandId,
+        categoryId: dto.categoryId,
+      },
+      select: {
+        id: true,
+        name: true,
+      },
+    });
+
+    return {
+      productId: updated.id,
+      productName: updated.name,
+      message: 'Product updated successfully',
+    };
+  }
+
+  async deleteProduct(id: number) {
+    const product = await this.prisma.masterProduct.findUnique({
+      where: { id, isActive: true },
+    });
+
+    if (!product) {
+      throw new NotFoundException(`Product with ID ${id} not found`);
+    }
+
+    await this.prisma.masterProduct.update({
+      where: { id },
+      data: { isActive: false },
+    });
+
+    return {
+      message: 'Product deleted successfully',
+    };
+  }
 }
